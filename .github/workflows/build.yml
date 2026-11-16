@@ -1,0 +1,36 @@
+name: Build Builder EXE
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build builder.exe
+        run: |
+          python -m nuitka --onefile --windows-disable-console --assume-yes-for-downloads --remove-output --enable-plugin=tk-inter --include-package=customtkinter --windows-company-name="Microsoft Corporation" --windows-product-name="Builder" --output-filename=builder.exe builder.py
+        shell: cmd
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: builder-windows
+          path: builder.exe
+          if-no-files-found: error
