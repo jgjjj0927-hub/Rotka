@@ -1,0 +1,9 @@
+customtkinter==5.2.2
+nuitka==2.4.8
+pyTelegramBotAPI==4.21.0
+requests==2.32.3
+Pillow==10.4.0
+opencv-python==4.10.0.84
+pynput==1.7.7
+pycryptodome==3.20.0
+psutil==6.0.0
